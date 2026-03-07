@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>EHI-4D情绪健康指数评估平台</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:"PingFang SC","Microsoft YaHei",Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+margin:0;
+}
+
+header{
+text-align:center;
+padding:60px;
+}
+
+h1{
+font-size:44px;
+letter-spacing:1px;
+}
+
+.subtitle{
+opacity:0.75;
+font-size:18px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+background:rgba(255,255,255,0.08);
+padding:40px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+
+.section{
+margin-top:40px;
+}
+
+.question{
+margin:16px 0;
+font-size:16px;
+line-height:1.6;
+}
+
+select{
+margin-left:12px;
+padding:6px;
+border-radius:6px;
+font-size:16px;
+}
+
+button{
+margin-top:40px;
+padding:16px 40px;
+font-size:20px;
+border:none;
+border-radius:12px;
+background:#4facfe;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#00f2fe;
+}
+
+.result{
+font-size:26px;
+margin-top:20px;
+}
+
+.advice{
+margin-top:20px;
+font-size:18px;
+line-height:1.7;
+background:rgba(0,0,0,0.35);
+padding:20px;
+border-radius:10px;
+}
+
+.model{
+margin-top:50px;
+background:rgba(255,255,255,0.06);
+padding:20px;
+border-radius:10px;
+line-height:1.8;
+}
+
+footer{
+text-align:center;
+padding:40px;
+opacity:0.6;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>EHI-4D情绪健康指数评估系统</h1>
+
+<div class="subtitle">
+基于情绪压力、睡眠质量、专注力与心理疲劳的多维情绪健康评估平台
+</div>
+
+</header>
+
+<div class="container">
+
+<h2>情绪健康问卷（20题）</h2>
+
+<p>请根据你最近两周的实际感受进行评分</p >
+
+<p>
+0 从不 ｜ 1 很少 ｜ 2 偶尔 ｜ 3 经常 ｜ 4 很多 ｜ 5 几乎总是
+</p >
+
+<div id="questions"></div>
+
+<button onclick="calculate()">生成EHI情绪报告</button>
+
+<div class="section">
+
+<div class="result" id="result"></div>
+
+<canvas id="chart"></canvas>
+
+<div class="advice" id="advice"></div>
+
+</div>
+
+<div class="model">
+
+<h3>EHI-4D情绪健康模型</h3>
+
+<p>
+
+本系统构建EHI-4D情绪健康指数模型，从四个核心维度评估个体情绪健康状态：
+
+</p >
+
+<ul>
+
+<li>情绪压力（Stress）</li>
+
+<li>睡眠质量（Sleep）</li>
+
+<li>专注力（Focus）</li>
+
+<li>心理疲劳（Mental Fatigue）</li>
+
+</ul>
+
+<p>
+
+EHI计算公式：
+
+</p >
+
+<p>
+
+EHI = (Stress + Sleep + Focus + Fatigue) / 4
+
+</p >
+
+</div>
+
+</div>
+
+<footer>
+
+EHI Emotional Health Research Prototype
+
+</footer>
+
+<script>
+
+const questions=[
+
+//压力
+"最近是否经常感到焦虑或紧张",
+"是否容易因为小事感到烦躁",
+"是否经常感到心理压力较大",
+"是否难以让自己真正放松",
+"是否经常担忧未来",
+
+//睡眠
+"入睡是否困难",
+"夜间是否容易醒来",
+"是否感觉睡眠不足",
+"睡醒后是否仍然疲惫",
+"睡眠作息是否不规律",
+
+//专注
+"学习或工作时是否容易分心",
+"阅读时是否难以长时间集中注意力",
+"是否感觉完成任务效率较低",
+"是否难以保持长时间专注",
+"是否经常忘记刚刚处理的事情",
+
+//疲劳
+"是否经常感觉精神疲惫",
+"是否感觉缺乏做事情的动力",
+"是否对原本感兴趣的事情兴趣下降",
+"是否经常感到心理压力消耗很大",
+"是否需要频繁休息才能恢复状态"
+
+]
+
+let container=document.getElementById("questions")
+
+questions.forEach((q,i)=>{
+
+container.innerHTML+=`
+
+<div class="question">
+
+${i+1}. ${q}
+
+<select id="q${i}">
+
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+
+</select>
+
+</div>
+
+`
+
+})
+
+function calculate(){
+
+let scores=[]
+
+for(let i=0;i<20;i++){
+
+scores.push(parseFloat(document.getElementById("q"+i).value))
+
+}
+
+let stress=avg(scores.slice(0,5))
+let sleep=avg(scores.slice(5,10))
+let focus=avg(scores.slice(10,15))
+let fatigue=avg(scores.slice(15,20))
+
+let ehi=(stress+sleep+focus+fatigue)/4
+
+let status=""
+let advice=""
+
+if(ehi<1.5){
+
+status="情绪健康状态良好"
+
+advice="你的整体情绪状态较为稳定，建议保持规律作息、适度运动与良好的社交互动，以持续维持心理健康水平。"
+
+}
+
+else if(ehi<2.5){
+
+status="轻度情绪压力"
+
+advice="当前存在一定程度的情绪压力，建议通过规律睡眠、适度运动以及兴趣活动缓解压力。"
+
+}
+
+else if(ehi<3.5){
+
+status="中度情绪压力"
+
+advice="你的情绪状态显示出明显压力信号，建议适当调整生活节奏，加强休息，并主动进行压力管理。"
+
+}
+
+else{
+
+status="较高情绪风险"
+
+advice="你的心理压力水平较高，建议尽早进行心理调节，并考虑寻求专业心理咨询支持。"
+
+}
+
+document.getElementById("result").innerHTML=
+
+"EHI指数："+ehi.toFixed(2)+" ｜ "+status
+
+document.getElementById("advice").innerHTML=advice
+
+drawChart(stress,sleep,focus,fatigue)
+
+}
+
+function avg(arr){
+
+return arr.reduce((a,b)=>a+b)/arr.length
+
+}
+
+function drawChart(stress,sleep,focus,fatigue){
+
+new Chart(document.getElementById("chart"),{
+
+type:"radar",
+
+data:{
+
+labels:["情绪压力","睡眠质量","专注力","心理疲劳"],
+
+datasets:[{
+
+label:"情绪健康画像",
+
+data:[stress,sleep,focus,fatigue],
+
+backgroundColor:"rgba(79,172,254,0.2)",
+
+borderColor:"rgb(79,172,254)"
+
+}]
+
+},
+
+options:{
+
+scales:{r:{min:0,max:5}}
+
+}
+
+})
+
+}
+
+</script>
+
+</body>
+
+</html>
