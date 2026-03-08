@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <title>EHI-4D情绪健康指数评估平台</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +11,7 @@
 <style>
 
 body{
-font-family:"PingFang SC","Microsoft YaHei",Arial;
+font-family:"PingFang SC","Microsoft YaHei";
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
 margin:0;
@@ -24,13 +23,7 @@ padding:60px;
 }
 
 h1{
-font-size:44px;
-letter-spacing:1px;
-}
-
-.subtitle{
-opacity:0.75;
-font-size:18px;
+font-size:42px;
 }
 
 .container{
@@ -39,25 +32,18 @@ margin:auto;
 background:rgba(255,255,255,0.08);
 padding:40px;
 border-radius:20px;
-backdrop-filter:blur(10px);
-box-shadow:0 20px 60px rgba(0,0,0,0.5);
-}
-
-.section{
-margin-top:40px;
+backdrop-filter:blur(12px);
 }
 
 .question{
-margin:16px 0;
+margin:14px 0;
 font-size:16px;
-line-height:1.6;
 }
 
 select{
 margin-left:12px;
 padding:6px;
 border-radius:6px;
-font-size:16px;
 }
 
 button{
@@ -76,31 +62,24 @@ background:#00f2fe;
 }
 
 .result{
-font-size:26px;
+font-size:30px;
 margin-top:20px;
 }
 
 .advice{
 margin-top:20px;
-font-size:18px;
-line-height:1.7;
-background:rgba(0,0,0,0.35);
+background:rgba(0,0,0,0.4);
 padding:20px;
 border-radius:10px;
+font-size:18px;
+line-height:1.6;
 }
 
 .model{
-margin-top:50px;
-background:rgba(255,255,255,0.06);
+margin-top:40px;
+background:rgba(255,255,255,0.05);
 padding:20px;
 border-radius:10px;
-line-height:1.8;
-}
-
-footer{
-text-align:center;
-padding:40px;
-opacity:0.6;
 }
 
 </style>
@@ -113,9 +92,7 @@ opacity:0.6;
 
 <h1>EHI-4D情绪健康指数评估系统</h1>
 
-<div class="subtitle">
-基于情绪压力、睡眠质量、专注力与心理疲劳的多维情绪健康评估平台
-</div>
+<p>基于情绪压力 · 睡眠质量 · 专注能力 · 心理疲劳的多维情绪健康评估模型</p >
 
 </header>
 
@@ -123,17 +100,11 @@ opacity:0.6;
 
 <h2>情绪健康问卷（20题）</h2>
 
-<p>请根据你最近两周的实际感受进行评分</p >
-
-<p>
-0 从不 ｜ 1 很少 ｜ 2 偶尔 ｜ 3 经常 ｜ 4 很多 ｜ 5 几乎总是
-</p >
+<p>0 从不 ｜ 1 很少 ｜ 2 偶尔 ｜ 3 经常 ｜ 4 很多 ｜ 5 几乎总是</p >
 
 <div id="questions"></div>
 
-<button onclick="calculate()">生成EHI情绪报告</button>
-
-<div class="section">
+<button onclick="calculate()">生成情绪健康报告</button>
 
 <div class="result" id="result"></div>
 
@@ -141,51 +112,19 @@ opacity:0.6;
 
 <div class="advice" id="advice"></div>
 
-</div>
-
 <div class="model">
 
-<h3>EHI-4D情绪健康模型</h3>
+<h3>EHI情绪健康指数模型</h3>
 
 <p>
 
-本系统构建EHI-4D情绪健康指数模型，从四个核心维度评估个体情绪健康状态：
-
-</p >
-
-<ul>
-
-<li>情绪压力（Stress）</li>
-
-<li>睡眠质量（Sleep）</li>
-
-<li>专注力（Focus）</li>
-
-<li>心理疲劳（Mental Fatigue）</li>
-
-</ul>
-
-<p>
-
-EHI计算公式：
-
-</p >
-
-<p>
-
-EHI = (Stress + Sleep + Focus + Fatigue) / 4
+EHI = 100 − [(0.30×Stress + 0.25×Sleep + 0.25×Focus + 0.20×Fatigue)/5 ×100]
 
 </p >
 
 </div>
 
 </div>
-
-<footer>
-
-EHI Emotional Health Research Prototype
-
-</footer>
 
 <script>
 
@@ -263,32 +202,34 @@ let sleep=avg(scores.slice(5,10))
 let focus=avg(scores.slice(10,15))
 let fatigue=avg(scores.slice(15,20))
 
-let ehi=(stress+sleep+focus+fatigue)/4
+let raw = 0.30*stress + 0.25*sleep + 0.25*focus + 0.20*fatigue
+
+let ehi = 100 - (raw/5*100)
 
 let status=""
 let advice=""
 
-if(ehi<1.5){
+if(ehi>=80){
 
 status="情绪健康状态良好"
 
-advice="你的整体情绪状态较为稳定，建议保持规律作息、适度运动与良好的社交互动，以持续维持心理健康水平。"
+advice="你的情绪状态整体稳定，建议保持规律作息、适度运动和良好社交。"
 
 }
 
-else if(ehi<2.5){
+else if(ehi>=60){
 
 status="轻度情绪压力"
 
-advice="当前存在一定程度的情绪压力，建议通过规律睡眠、适度运动以及兴趣活动缓解压力。"
+advice="当前存在一定情绪压力，建议增加运动、减少熬夜并保持健康作息。"
 
 }
 
-else if(ehi<3.5){
+else if(ehi>=40){
 
 status="中度情绪压力"
 
-advice="你的情绪状态显示出明显压力信号，建议适当调整生活节奏，加强休息，并主动进行压力管理。"
+advice="你的情绪压力较明显，建议适当放缓生活节奏，加强休息与压力管理。"
 
 }
 
@@ -296,13 +237,13 @@ else{
 
 status="较高情绪风险"
 
-advice="你的心理压力水平较高，建议尽早进行心理调节，并考虑寻求专业心理咨询支持。"
+advice="你的心理压力较高，建议主动进行情绪调节，并考虑寻求专业心理咨询支持。"
 
 }
 
 document.getElementById("result").innerHTML=
 
-"EHI指数："+ehi.toFixed(2)+" ｜ "+status
+"EHI情绪指数："+ehi.toFixed(1)+" / 100 ｜ "+status
 
 document.getElementById("advice").innerHTML=advice
 
@@ -334,7 +275,7 @@ data:[stress,sleep,focus,fatigue],
 
 backgroundColor:"rgba(79,172,254,0.2)",
 
-borderColor:"rgb(79,172,254)"
+borderColor:"#4facfe"
 
 }]
 
